@@ -1,0 +1,12 @@
+services:
+    redis:
+        image: redis:8-alpine
+        ports:
+            - "6000:6379"
+        volumes:
+            - redis_data:/data
+        command: redis-server --appendonly yes  # enable AOF persistence
+        restart: unless-stopped
+
+volumes:
+    redis_data:
