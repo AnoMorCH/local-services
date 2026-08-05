@@ -11,21 +11,23 @@ services:
     kafka:
         image: apache/kafka:latest
         container_name: kafka-broker
-        ports:
-            - "9092:9092"
+        # Use the host network stack directly
+        network_mode: host
         environment:
             KAFKA_CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
             KAFKA_NODE_ID: 1
             KAFKA_PROCESS_ROLES: "broker,controller"
-            KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka-broker:9093"
+            KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+
+            # 172.17.0.1 is the standard 'docker0' bridge IP on Linux.
+            # This allows other containers to find the host.
+            KAFKA_ADVERTISED_LISTENERS: "INTERNAL://localhost:29092,EXTERNAL://172.17.0.1:9092"
+
             KAFKA_LISTENERS: "INTERNAL://0.0.0.0:29092,EXTERNAL://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-            KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka-broker:29092,EXTERNAL://localhost:9092"
             KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
             KAFKA_INTER_BROKER_LISTENER_NAME: "INTERNAL"
             KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
             KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
-            KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
-            KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
         volumes:
             - kafka_data:/var/lib/kafka/data
         networks:
@@ -34,7 +36,3 @@ services:
 volumes:
     redis_data:
     kafka_data:
-
-networks:
-    kafka-net:
-        external: true
