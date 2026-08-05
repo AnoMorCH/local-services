@@ -11,3 +11,4 @@ docker compose up --build
 ## The Service List
 
 * redis (AOF persistence) - 6000 port.
+* Kafka (persistence) - 9092 port.
